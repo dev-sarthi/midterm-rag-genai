@@ -1,0 +1,23 @@
+# Environment and Secrets
+.env
+.env.local
+
+# Virtual Environment
+.venv/
+venv/
+ENV/
+
+# ChromaDB persistence directory
+db/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.sqlite3
+
+# IDE / System
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

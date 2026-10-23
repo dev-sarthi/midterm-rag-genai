@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Designs Law Assistant</title>
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <!-- Dark Navy Header -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand">
+        <div class="brand-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1>Designs Law Assistant</h1>
+          <p class="brand-subtitle">Manual of Practice &amp; Procedure &bull; Verified Statutory RAG</p>
+        </div>
+      </div>
+      <div class="header-badges">
+        <span class="badge badge-accent">
+          <span class="status-dot"></span> 87 Pages Indexed
+        </span>
+        <span class="badge badge-neutral">ChromaDB &bull; Gemini Embeddings</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Layout -->
+  <main class="main-container">
+    <!-- Search / Question Input Section -->
+    <section class="card input-card">
+      <div class="card-header">
+        <h2 class="card-title">Legal Inquiry</h2>
+        <span class="card-hint">Answers are derived strictly from the official document with page citations</span>
+      </div>
+
+      <form id="askForm" class="ask-form">
+        <div class="textarea-wrapper">
+          <textarea
+            id="questionInput"
+            rows="3"
+            placeholder="Type your question regarding designs law (e.g. definition, registrability, piracy, duration)..."
+            aria-label="Legal Inquiry Input"
+            required
+          ></textarea>
+          <div class="textarea-footer">
+            <span class="key-hint">Press <kbd>Enter</kbd> to ask &bull; <kbd>Shift + Enter</kbd> for new line</span>
+            <button type="button" id="clearBtn" class="btn-ghost" title="Clear input">Clear</button>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" id="submitBtn" class="btn btn-primary">
+            <span class="btn-text">Ask Assistant</span>
+            <svg class="btn-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="22" y1="2" x2="11" y2="13"></line>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+            </svg>
+            <span class="spinner" aria-hidden="true"></span>
+          </button>
+        </div>
+      </form>
+
+      <!-- Suggested Assignment Questions -->
+      <div class="suggested-container">
+        <span class="suggested-label">Suggested Assignment Questions:</span>
+        <div class="suggested-chips" id="suggestedChips">
+          <button type="button" class="chip" data-question="What constitutes a design under Section 2(d) of the Designs Act?">
+            1. Definition of Design
+          </button>
+          <button type="button" class="chip" data-question="What are the essential requirements and criteria for registration of a design?">
+            2. Requirements for Registration
+          </button>
+          <button type="button" class="chip" data-question="Which designs are prohibited from registration under the Act?">
+            3. Non-Registrable Designs
+          </button>
+          <button type="button" class="chip" data-question="What is the duration and term of copyright in a registered design?">
+            4. Duration &amp; Term of Copyright
+          </button>
+          <button type="button" class="chip" data-question="What acts constitute piracy or infringement of a registered design under Section 22?">
+            5. Piracy &amp; Infringement
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Error State Banner -->
+    <div id="errorAlert" class="alert alert-error hidden" role="alert">
+      <div class="alert-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+      </div>
+      <div class="alert-content">
+        <strong id="errorTitle">Request Error</strong>
+        <p id="errorMessage">An unexpected error occurred.</p>
+      </div>
+      <button type="button" id="dismissErrorBtn" class="alert-dismiss" aria-label="Dismiss">&times;</button>
+    </div>
+
+    <!-- Loading State Skeleton -->
+    <section id="loadingState" class="card loading-card hidden" aria-live="polite">
+      <div class="loading-header">
+        <div class="pulsing-orbit"></div>
+        <div>
+          <h3>Consulting Statutory Knowledge Base</h3>
+          <p class="text-muted">Retrieving top relevant passages and verifying legal grounds...</p>
+        </div>
+      </div>
+      <div class="skeleton-line skeleton-long"></div>
+      <div class="skeleton-line skeleton-medium"></div>
+      <div class="skeleton-line skeleton-short"></div>
+    </section>
+
+    <!-- Results Section -->
+    <section id="resultsSection" class="results-section hidden">
+      <!-- Answer Card -->
+      <div class="card answer-card">
+        <div class="card-header answer-header">
+          <div>
+            <h2 class="card-title">Verified Statutory Answer</h2>
+            <p id="questionEcho" class="question-echo"></p>
+          </div>
+          <button type="button" id="copyBtn" class="btn btn-outline btn-sm">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+            <span id="copyBtnText">Copy Answer</span>
+          </button>
+        </div>
+
+        <!-- Rendered Answer Body -->
+        <div id="answerBody" class="answer-body"></div>
+
+        <!-- Not Found State Badge -->
+        <div id="notFoundBox" class="not-found-box hidden">
+          <div class="not-found-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              <line x1="8" y1="11" x2="14" y2="11"></line>
+            </svg>
+          </div>
+          <div>
+            <span class="not-found-badge">Not found</span>
+            <p class="not-found-desc">
+              The indexed statutory document does not contain explicit evidentiary text supporting an answer to this query.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sources Section -->
+      <div class="sources-wrapper">
+        <div class="sources-header">
+          <h3>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+              <polyline points="10 9 9 9 8 9"></polyline>
+            </svg>
+            Retrieved Passages &amp; Statutory Citations (<span id="sourceCount">4</span>)
+          </h3>
+          <span class="text-muted text-sm">Ranked by embedding cosine similarity</span>
+        </div>
+
+        <div id="sourcesGrid" class="sources-grid">
+          <!-- Populated dynamically via JS -->
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Clean Footer -->
+  <footer class="app-footer">
+    <div class="footer-container">
+      <p>&copy; 2026 Designs Law Assistant &bull; Grounded in the Indian Designs Act &amp; Official Manual</p>
+      <p class="footer-subtext">Backend powered by FastAPI, LangChain, ChromaDB &amp; Google Gemini</p>
+    </div>
+  </footer>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
